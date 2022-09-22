@@ -137,7 +137,6 @@ class Weather(Producer):
                 self.temp,
                 self.status.name,
             )
-
         except Exception as e:
             logger.error(f"Weather running error: {e}")
             logger.info("weather kafka proxy integration incomplete - skipping")

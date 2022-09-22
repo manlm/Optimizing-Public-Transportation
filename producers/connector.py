@@ -89,6 +89,7 @@ def configure_connector():
                     "incrementing.column.name": "stop_id",
                     "topic.prefix": "org.chicago.cta.",
                     "poll.interval.ms": "5000",
+                    "poll.interval.ms": "5000",
                 }
             }
         ),
@@ -97,9 +98,8 @@ def configure_connector():
     try:
         resp.raise_for_status()
         logging.debug("connector created successfully")
-
     except Exception as e:
-        print(f"failed to created connector: {e}")
+        logger.error(f"Connection creating error: {e}")
         logger.info("connector code not completed skipping connector creation")
 
 
