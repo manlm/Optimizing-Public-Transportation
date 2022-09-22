@@ -10,7 +10,6 @@ import requests
 
 from models.producer import Producer
 
-
 logger = logging.getLogger(__name__)
 
 
@@ -37,9 +36,12 @@ class Weather(Producer):
         #
         #
         super().__init__(
-            "weather", # TODO: Come up with a better topic name
+            # "weather", # TODO: Come up with a better topic name
+            topic_name="org.chicago.cta.weather.v1",
             key_schema=Weather.key_schema,
             value_schema=Weather.value_schema,
+            num_partitions=1,
+            num_replicas=1,
         )
 
         self.status = Weather.status.sunny
@@ -79,8 +81,8 @@ class Weather(Producer):
         # specify the Avro schemas and verify that you are using the correct Content-Type header.
         #
         #
-        logger.info("weather kafka proxy integration incomplete - skipping")
-        #resp = requests.post(
+        # logger.info("weather kafka proxy integration incomplete - skipping")
+        # resp = requests.post(
         #    #
         #    #
         #    # TODO: What URL should be POSTed to?
@@ -102,11 +104,40 @@ class Weather(Producer):
         #            #
         #        }
         #    ),
-        #)
-        #resp.raise_for_status()
+        # )
+        # resp.raise_for_status()
 
-        logger.debug(
-            "sent weather data to kafka, temp: %s, status: %s",
-            self.temp,
-            self.status.name,
-        )
+        try:
+            resp = requests.post(
+                f"{Weather.rest_proxy_url}/topics/{self.topic_name}",
+                headers={"Content-Type": "application/vnd.kafka.avro.v2+json"},
+                data=json.dumps(
+                    {
+                        "key_schema": json.dumps(Weather.key_schema),
+                        "value_schema": json.dumps(Weather.value_schema),
+                        "records": [
+                            {
+                                "value": {
+                                    "temperature": int(self.temp),
+                                    "status": self.status.name
+                                },
+                                "key": {
+                                    "timestamp": self.time_millis()
+                                }
+                            }
+                        ]
+                    }
+                ),
+            )
+
+            resp.raise_for_status()
+
+            logger.debug(
+                "sent weather data to kafka, temp: %s, status: %s",
+                self.temp,
+                self.status.name,
+            )
+
+        except Exception as e:
+            logger.error(f"Weather running error: {e}")
+            logger.info("weather kafka proxy integration incomplete - skipping")
