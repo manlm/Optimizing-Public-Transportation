@@ -23,14 +23,13 @@ class Turnstile(Producer):
 
     def __init__(self, station):
         """Create the Turnstile"""
-        # station_name = (
-        #     station.name.lower()
-        #     .replace("/", "_and_")
-        #     .replace(" ", "_")
-        #     .replace("-", "_")
-        #     .replace("'", "")
-        # )
-        station_name = 'org.chicago.cta.station.turnstile.v1'
+        station_name = (
+            station.name.lower()
+            .replace("/", "_and_")
+            .replace(" ", "_")
+            .replace("-", "_")
+            .replace("'", "")
+        )
 
         #
         #
@@ -38,8 +37,9 @@ class Turnstile(Producer):
         # replicas
         #
         #
+        topic_name = f"org.chicago.cta.station.arrivals.{station_name}"
         super().__init__(
-            f"{station_name}",  # TODO: Come up with a better topic name
+            topic_name,  # TODO: Come up with a better topic name
             key_schema=Turnstile.key_schema,
             # TODO: value_schema=Turnstile.value_schema, TODO: Uncomment once schema is defined
             # TODO: num_partitions=???,
