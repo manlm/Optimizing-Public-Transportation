@@ -18,22 +18,21 @@ KSQL_URL = "http://localhost:8088"
 #       `turnstile` table and grouping on station_id.
 #       Make sure to cast the COUNT of station id to `count`
 #       Make sure to set the value format to JSON
-
 KSQL_STATEMENT = """
-CREATE TABLE turnstile (
+CREATE TABLE TURNSTILE (
     station_id INT,
     station_name VARCHAR,
     line VARCHAR
 ) WITH (
-    KAFKA_TOPIC='org.chicago.cta.turnstiles.v1',
-    VALUE_FORMAT='avro',
-    KEY='station_id'
+    kafka_topic = 'org.chicago.cta.station.turnstile.v1',
+    value_format = 'avro',
+    key = 'STATION_ID'
 );
-CREATE TABLE turnstile_summary 
-WITH (VALUE_FORMAT='JSON') AS 
-    SELECT station_id, COUNT(station_id) as count
-    FROM turnstile
-    GROUP BY station_id;
+CREATE TABLE TURNSTILE_SUMMARY
+WITH (value_format = 'json') AS
+    SELECT STATION_ID, COUNT(STATION_ID) AS COUNT
+    FROM TURNSTILE
+    GROUP BY STATION_ID;
 """
 
 

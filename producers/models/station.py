@@ -37,9 +37,8 @@ class Station(Producer):
         #
         #
         # topic_name = f"{station_name}" # TODO: Come up with a better topic name
-        topic_name = f"org.chicago.cta.station.arrivals.{station_name}"
         super().__init__(
-            topic_name,
+            topic_name=f"org.chicago.cta.station.{station_name}.arrivals",
             key_schema=Station.key_schema,
             # TODO: value_schema=Station.value_schema, # TODO: Uncomment once schema is defined
             # TODO: num_partitions=???,

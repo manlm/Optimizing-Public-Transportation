@@ -37,9 +37,8 @@ class Turnstile(Producer):
         # replicas
         #
         #
-        topic_name = "org.chicago.cta.station.turnstile.v1"
         super().__init__(
-            topic_name,  # TODO: Come up with a better topic name
+            topic_name=f"org.chicago.cta.station.turnstile.v1",  # TODO: Come up with a better topic name
             key_schema=Turnstile.key_schema,
             # TODO: value_schema=Turnstile.value_schema, TODO: Uncomment once schema is defined
             # TODO: num_partitions=???,
@@ -70,7 +69,7 @@ class Turnstile(Producer):
                     value={
                         "station_id": int(self.station.station_id),
                         "station_name": str(self.station.name),
-                        "line": str(self.station.color)
+                        "line": str(self.station.color.name)
                     }
                 )
         except Exception as e:
