@@ -3,7 +3,6 @@ import logging
 
 import faust
 
-
 logger = logging.getLogger(__name__)
 
 
@@ -34,15 +33,23 @@ class TransformedStation(faust.Record):
 app = faust.App("stations-stream", broker="kafka://localhost:9092", store="memory://")
 # TODO: Define the input Kafka Topic. Hint: What topic did Kafka Connect output to?
 # topic = app.topic("TODO", value_type=Station)
+topic = app.topic("org.chicago.cta.stations", value_type=Station)
 # TODO: Define the output Kafka Topic
 # out_topic = app.topic("TODO", partitions=1)
+out_topic = app.topic("org.chicago.cta.stations.table.v1", partitions=1)
 # TODO: Define a Faust Table
-#table = app.Table(
+# table = app.Table(
 #    # "TODO",
 #    # default=TODO,
 #    partitions=1,
 #    changelog_topic=out_topic,
-#)
+# )
+table = app.Table(
+    "org.chicago.cta.stations.table.v1",
+    default=TransformedStation,
+    partitions=1,
+    changelog_topic=out_topic,
+)
 
 
 #
@@ -52,6 +59,21 @@ app = faust.App("stations-stream", broker="kafka://localhost:9092", store="memor
 # then you would set the `line` of the `TransformedStation` record to the string `"red"`
 #
 #
+@app.agent(topic)
+async def transform_station(stations):
+    async for station in stations:
+        line = ""
+        if station.red:
+            line = "red"
+        elif station.blue:
+            line = "blue"
+        elif station.green:
+            line = "green"
+
+        table[station.station_id] = TransformedStation(station_id=station.station_id,
+                                                       station_name=station.station_name,
+                                                       order=station.order,
+                                                       line=line)
 
 
 if __name__ == "__main__":
